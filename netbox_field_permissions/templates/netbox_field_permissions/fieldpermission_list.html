@@ -1,0 +1,8 @@
+{% extends "generic/object_list.html" %}
+
+{% block extra_controls %}
+{% if user.is_superuser %}
+<a href="{% url 'plugins:netbox_field_permissions:fieldpermission_manage' %}" class="btn btn-secondary" type="button">
+    <i class="mdi mdi-cog" aria-hidden="true"></i> Manage Validators</a>
+{% endif %}
+{% endblock extra_controls %}

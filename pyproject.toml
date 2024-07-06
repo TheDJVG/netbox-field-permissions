@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "netbox-field-permissions"
+version = "0.1.0-pre"
+description = "NetBox plugin that provides permissions on object fields."
+authors = ["Daan van Gorkum <me+netbox@dj.vg>"]
+readme = "README.md"
+packages = [{include = "netbox_field_permissions"}]
+repository = "https://github.com/TheDJVG/netbox-field-permissions"
+homepage = "https://github.com/TheDJVG/netbox-field-permissions"
+keywords = ["netbox", "permissions"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.0.3"
+black = "^23.1.0"
+identify = "^2.5.17"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
