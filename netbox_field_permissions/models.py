@@ -69,6 +69,6 @@ class FieldPermission(ObjectAbsoluteUrlMixin, models.Model):
             ):
                 continue
 
-            fields.append((field.name, field.replace("_", " ").title()))
+            fields.append((field.name, field.name.replace("_", " ").title()))
 
         return fields
