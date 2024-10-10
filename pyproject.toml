@@ -8,6 +8,7 @@ packages = [{include = "netbox_field_permissions"}]
 repository = "https://github.com/TheDJVG/netbox-field-permissions"
 homepage = "https://github.com/TheDJVG/netbox-field-permissions"
 keywords = ["netbox", "permissions"]
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.11"
