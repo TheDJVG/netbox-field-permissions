@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "netbox-field-permissions"
-version = "0.1.0rc1"
+version = "0.1.0rc2"
 description = "NetBox plugin that provides permissions on object fields."
 authors = ["Daan van Gorkum <me+netbox@dj.vg>"]
 readme = "README.md"
