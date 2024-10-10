@@ -9,7 +9,7 @@ A common use case for this is compliance where certain information is not allowe
 
 | NetBox Version | Plugin Version |
 |----------------|----------------|
-| 4.0            | 0.1.X          |
+| 4.0, 4.1       | 0.1.X          |
 
 ## Installing
 
