@@ -1,4 +1,5 @@
 {% extends 'generic/_base.html' %}
+{% load helpers %}
 {% load render_table from django_tables2 %}
 {% block title %}Manage Field Permission Plugin{% endblock title %}
 {% block subtitle %}
@@ -6,17 +7,70 @@
 {% endblock subtitle %}
 
 {% block control-buttons %}
+{% if not validators_statically_configured %}
 <form action="" method="post">
     {% csrf_token %}
     <button type="submit" name="_install" class="btn btn-success">
-        <i class="mdi mdi-check" aria-hidden="true"></i> Install validators</button>
+        <i class="mdi mdi-check" aria-hidden="true"></i> Install validators
+    </button>
     <button type="submit" name="_uninstall" class="btn btn-danger">
-        <i class="mdi mdi-cancel" aria-hidden="true"></i> Remove validators</button>
+        <i class="mdi mdi-cancel" aria-hidden="true"></i> Remove validators
+    </button>
 </form>
+{% endif %}
 {% endblock %}
+
+
+{% block tabs %}
+{% if validators_statically_configured %}
+  <ul class="nav nav-tabs" role="presentation">
+    {# Primary tab #}
+    <li class="nav-item">
+      <a class="nav-link{% if not show_manual_install %} active{% endif %}" href="{% url 'plugins:netbox_field_permissions:fieldpermission_manage' %}">Configuration status</a>
+    </li>
+      <li class="nav-item">
+      <a class="nav-link{% if show_manual_install %} active{% endif %}"  href="{% url 'plugins:netbox_field_permissions:fieldpermission_manage' %}?manual_install">Manual configuration</a>
+    </li>
+  </ul>
+{% endif %}
+{% endblock tabs %}
 
 {% block content %}
 <div class="row">
+    {% if validators_statically_configured %}
+        <div class="alert alert-warning" role="alert">
+        <h4 class="alert-title">Static NetBox configuration detected</h4>
+        <p>Your NetBox configuration is statically configured. This means the plugin can not manage the validators
+            automatically or at user request. You can still manually add/remove the validators to your configuration using the prepared configuration <a href="{% url 'plugins:netbox_field_permissions:fieldpermission_manage' %}?manual_install">here</a>. The validator is required to check the fields a user/group has access to.</p>
+        <p>If you want to switch to a dynamic configuration please consult the NetBox documentation on config revisions.</p>
+    </div>
+    {% endif %}
+    {% if show_manual_install %}
+    <div class="col col-md-6">
+        <div class="card">
+            <h2 class="card-header">Install custom validator</h2>
+            <div class="card-body">
+                {% spaceless %}
+                <pre class="change-data">
+                    <span>CUSTOM_VALIDATORS = {{ install_validators|json }}</span>
+                </pre>
+                {% endspaceless %}
+            </div>
+        </div>
+    </div>
+    <div class="col col-md-6">
+        <div class="card">
+            <h2 class="card-header">Remove custom validator</h2>
+            <div class="card-body">
+                {% spaceless %}
+                <pre class="change-data">
+                    <span>CUSTOM_VALIDATORS = {{ uninstall_validators|json }}</span>
+                </pre>
+                {% endspaceless %}
+            </div>
+        </div>
+    </div>
+    {% else %}
     {% for app, table in tables.items %}
     <div class="col col-md-3">
         <div class="card">
@@ -27,5 +81,6 @@
         </div>
     </div>
     {% endfor %}
+    {% endif %}
 </div>
 {% endblock content %}

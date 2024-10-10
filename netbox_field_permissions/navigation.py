@@ -10,7 +10,7 @@ menu_items = (
                 title="Add",
                 icon_class="mdi mdi-plus-thick",
                 permissions=("netbox_field_permissions.add_fieldpermission",),
-            )
+            ),
         ],
     ),
 )
