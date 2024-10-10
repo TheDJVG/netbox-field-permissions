@@ -3,6 +3,7 @@ import logging
 from collections import defaultdict
 
 from core.models import ConfigRevision, ObjectType
+from django.conf import settings
 from django.db import models
 from netbox.config import get_config
 
@@ -42,6 +43,10 @@ def validator_status_by_content_type():
     # Use the active config so no database has to be hit.
     config = get_config().config.get("CUSTOM_VALIDATORS", {})
 
+    # If NetBox is statically configured use the validators from the settings.
+    if hasattr(settings, "CUSTOM_VALIDATORS"):
+        config = settings.CUSTOM_VALIDATORS
+
     data = defaultdict(list)
 
     for ct in content_types:
@@ -59,13 +64,15 @@ def validator_status_by_content_type():
     return data
 
 
-# Sorry Jeremy, I'm sure you're not going to like the following.
-def install_validator():
+def get_content_types_for_validator():
     content_types = ObjectType.objects.filter(FIELDPERMISSION_OBJECT_TYPES).order_by(
         "app_label"
     )
-    install_for_content_types = [f"{ct.app_label}.{ct.model}" for ct in content_types]
+    return [f"{ct.app_label}.{ct.model}" for ct in content_types]
 
+
+# Sorry Jeremy, I'm sure you're not going to like the following.
+def install_validator():
     config_version = get_config().version
     config_qs = ConfigRevision.objects.filter(pk=config_version)
 
@@ -74,7 +81,7 @@ def install_validator():
     validators = initial.get("CUSTOM_VALIDATORS", {}).copy()
     needs_update = False
 
-    for ct in install_for_content_types:
+    for ct in get_content_types_for_validator():
         if ct not in validators:
             needs_update = True
             validators[ct] = (FIELDPERMISSION_VALIDATOR,)

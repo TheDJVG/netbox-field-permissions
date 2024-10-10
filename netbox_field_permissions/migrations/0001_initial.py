@@ -34,7 +34,8 @@ def get_current_config(apps):
 def write_static_configuration_messsage():
     sys.stdout.write(
         colorize(
-            "\n  Static NetBox configuration detected. Please install customer validator manually!!",
+            "\n  Static NetBox configuration detected. Please install plugin validator manually by "
+            "adding 'netbox_field_permissions.validators.FieldPermissionValidator' for each model.",
             fg="yellow",
             opts=("bold",),
         )

@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import redirect
@@ -11,6 +12,7 @@ from netbox.views.generic import (
     ObjectView,
 )
 
+from netbox_field_permissions.constants import FIELDPERMISSION_VALIDATOR
 from netbox_field_permissions.forms import FieldPermissionEditForm, FieldPermissionForm
 from netbox_field_permissions.models import FieldPermission
 from netbox_field_permissions.tables import (
@@ -19,6 +21,7 @@ from netbox_field_permissions.tables import (
     FieldPermissionValidatorTable,
 )
 from netbox_field_permissions.utilities import (
+    get_content_types_for_validator,
     install_validator,
     uninstall_validator,
     validator_status_by_content_type,
@@ -86,12 +89,45 @@ class FieldPermissionManageView(UserPassesTestMixin, TemplateView):
     template_name = "netbox_field_permissions/manage.html"
 
     def test_func(self):
-        return self.request.user.is_superuser
+        return self.request.user.is_staff
 
     def get_context_data(self, **kwargs):
         status = validator_status_by_content_type()
 
+        # Create install/uninstall JSON for ease of use.
+        current_validators = getattr(settings, "CUSTOM_VALIDATORS", {})
+
+        # Dict for installing validators
+        install_validators = current_validators.copy()
+        for ct in get_content_types_for_validator():
+            if ct not in install_validators:
+                install_validators[ct] = (FIELDPERMISSION_VALIDATOR,)
+            else:
+                if FIELDPERMISSION_VALIDATOR not in install_validators[ct]:
+                    install_validators[ct] = tuple(install_validators[ct]) + (
+                        FIELDPERMISSION_VALIDATOR,
+                    )
+
+        # Dict for uninstalling validators
+        uninstall_validators = current_validators.copy()
+        for model, validator in uninstall_validators.copy().items():
+            if FIELDPERMISSION_VALIDATOR not in validator:
+                continue
+
+            # If there's only 1 validator defined just remove the key from the config
+            # so we don't end up with empty values.
+            if len(validator) == 1:
+                del uninstall_validators[model]
+            else:
+                uninstall_validators[model] = (
+                    x for x in validator if x != FIELDPERMISSION_VALIDATOR
+                )
+
         return {
+            "validators_statically_configured": hasattr(settings, "CUSTOM_VALIDATORS"),
+            "show_manual_install": "manual_install" in self.request.GET,
+            "install_validators": install_validators,
+            "uninstall_validators": uninstall_validators,
             "tables": {
                 k: FieldPermissionValidatorTable(data=v, empty_text="No models in app")
                 for k, v in status.items()
