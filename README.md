@@ -47,7 +47,11 @@ git+https://github.com/TheDJVG/netbox-field-permissions
 Enable the plugin in `/opt/netbox/netbox/netbox/configuration.py`,
 or if you use netbox-docker, your `/configuration/plugins.py` file :
 
-
+```python
+PLUGINS = [
+    'netbox_field_permissions'
+]
+```
 
 ### Validator installation
 By default, the migration will install the validator for all models. If you're using a statically configured NetBox
